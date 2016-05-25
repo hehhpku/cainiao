@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapred>
+    <!-- profile -->
+    <baseId>1</baseId>
+    <projectId>1</projectId>
+    <resourceName>cross_feature</resourceName>
+    <idePath>workflow/feature</idePath>
+
+    <!-- classes -->
+    <jobLauncher>io.caicloud.JobLauncher</jobLauncher>
+    <mapper>io.caicloud.MyMapper</mapper>
+    <reducer>io.caicloud.MyReducer</reducer>
+    <combiner>io.caicloud.MyCombiner</combiner>
+
+    <!--task-->
+    <mapOutputKey>word:string</mapOutputKey>
+    <mapOutputValue>cnt:bigint</mapOutputValue>
+
+    <numReduceTask>8</numReduceTask>
+
+    <!-- tables -->
+    <inputTables>
+        <table>
+            <name>wordcount_in</name>
+            <partitions>
+                <partition>dt={yyyymmdd}</partition>
+                <partition>dt={yyyymmdd-1}</partition>
+            </partitions>
+        </table>
+    </inputTables>
+    <outputTable>
+        <name>wordcount_out</name>
+        <partition>dt={yyyymmdd}</partition>
+    </outputTable>
+</mapred>

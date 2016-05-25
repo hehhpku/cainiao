@@ -20,7 +20,7 @@ import java.util.*;
 
 public class AvgFeatureReducer extends ReducerBase {
     private Record result;
-    private final List<Integer> intervals = Arrays.asList(7, 14, 28);
+    private final List<Integer> intervals = Arrays.asList(3, 7, 14);
 
     public void setup(TaskContext context) throws IOException {
         result = context.createOutputRecord();
