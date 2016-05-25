@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapred>
+    <!-- profile -->
+    <baseId>125771790904</baseId>
+    <projectId>12901</projectId>
+    <resourceName>smooth</resourceName>
+    <idePath>工作流/preprocess</idePath>
+
+    <!-- classes -->
+    <jobLauncher>io.caicloud.JobLauncher</jobLauncher>
+    <mapper>io.caicloud.preprocess.SmoothMapper</mapper>
+    <reducer>io.caicloud.preprocess.SmoothReducer</reducer>
+
+    <!--task-->
+    <mapOutputKey>item_id:bigint,store_code:bigint</mapOutputKey>
+    <mapOutputValue>thedate:bigint,item_id:bigint,store_code:bigint,cate_id:bigint,cate_level_id:bigint,brand_id:bigint,supplier_id:bigint,pv_ipv:bigint,pv_uv:bigint,cart_ipv:bigint,cart_uv:bigint,collect_uv:bigint,num_gmv:bigint,amt_gmv:double,qty_gmv:bigint,unum_gmv:bigint,amt_alipay:double,num_alipay:bigint,qty_alipay:bigint,unum_alipay:bigint,ztc_pv_ipv:bigint,tbk_pv_ipv:bigint,ss_pv_ipv:bigint,jhs_pv_ipv:bigint,ztc_pv_uv:bigint,tbk_pv_uv:bigint,ss_pv_uv:bigint,jhs_pv_uv:bigint,num_alipay_njhs:bigint,amt_alipay_njhs:double,qty_alipay_njhs:bigint,unum_alipay_njhs:bigint</mapOutputValue>
+
+    <!--<partitionColumns>col1,col2</partitionColumns>-->
+    <!--<outputKeySortColumns>col1,col2</outputKeySortColumns>-->
+    <!--<outputKeySortOrders>ASC,DESC</outputKeySortOrders>-->
+    <!--<outputGroupingColumns>col1,col2</outputGroupingColumns>-->
+    <numReduceTask>100</numReduceTask>
+    <!--<memoryForMapTask>2048</memoryForMapTask>-->
+    <!--<memoryForReduceTask>2048</memoryForReduceTask>-->
+
+
+    <!-- tables -->
+    <inputTables>
+        <table>
+            <name>all_item_feature</name>
+            <!--<partitions>-->
+                <!--<partition>dt={yyyymmdd}</partition>-->
+                <!--<partition>dt={yyyymmdd-1}</partition>-->
+            <!--</partitions>-->
+        </table>
+    </inputTables>
+    <outputTable>
+        <name>smoothed_item_feature</name>
+        <!--<partition>dt={yyyymmdd}</partition>-->
+    </outputTable>
+</mapred>

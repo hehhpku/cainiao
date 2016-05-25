@@ -1,0 +1,3 @@
+project=local
+table=smoothed_item_feature
+columns=thedate:bigint,item_id:bigint,store_code:bigint,cate_id:bigint,cate_level_id:bigint,brand_id:bigint,supplier_id:bigint,pv_ipv:double,pv_uv:double,cart_ipv:double,cart_uv:double,collect_uv:double,num_gmv:double,amt_gmv:double,qty_gmv:double,unum_gmv:double,amt_alipay:double,num_alipay:double,qty_alipay:double,unum_alipay:double,ztc_pv_ipv:double,tbk_pv_ipv:double,ss_pv_ipv:double,jhs_pv_ipv:double,ztc_pv_uv:double,tbk_pv_uv:double,ss_pv_uv:double,jhs_pv_uv:double,num_alipay_njhs:double,amt_alipay_njhs:double,qty_alipay_njhs:double,unum_alipay_njhs:double
