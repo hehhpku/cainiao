@@ -1,35 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mapred>
     <!-- profile -->
-    <baseId>1</baseId>
-    <projectId>1</projectId>
+    <baseId>125771790904</baseId>
+    <projectId>12901</projectId>
     <resourceName>cross_feature</resourceName>
-    <idePath>workflow/feature</idePath>
+    <idePath>工作流/feature</idePath>
 
     <!-- classes -->
     <jobLauncher>io.caicloud.JobLauncher</jobLauncher>
-    <mapper>io.caicloud.MyMapper</mapper>
-    <reducer>io.caicloud.MyReducer</reducer>
-    <combiner>io.caicloud.MyCombiner</combiner>
+    <mapper>io.caicloud.CrossFeatureMapper</mapper>
+    <reducer>io.caicloud.CrossFeatureReducer</reducer>
 
     <!--task-->
-    <mapOutputKey>word:string</mapOutputKey>
-    <mapOutputValue>cnt:bigint</mapOutputValue>
+    <mapOutputKey>item_id:bigint,store_code:bigint</mapOutputKey>
+    <mapOutputValue>sale_sum:bigint,thedate:bigint,item_id:bigint,store_code:bigint,day1:bigint,day2:bigint,day3:bigint,day4:bigint,day5:bigint,day6:bigint,day7:bigint,day8:bigint,day9:bigint,day10:bigint,day11:bigint,day12:bigint,day13:bigint,day14:bigint,A3_pv_ipv:double,A3_pv_uv:double,A3_cart_ipv:double,A3_cart_uv:double,A3_collect_uv:double,A3_num_gmv:double,A3_amt_gmv:double,A3_qty_gmv:double,A3_unum_gmv:double,A3_amt_alipay:double,A3_num_alipay:double,A3_qty_alipay:double,A3_unum_alipay:double,A3_ztc_pv_ipv:double,A3_tbk_pv_ipv:double,A3_ss_pv_ipv:double,A3_jhs_pv_ipv:double,A3_ztc_pv_uv:double,A3_tbk_pv_uv:double,A3_ss_pv_uv:double,A3_jhs_pv_uv:double,A3_num_alipay_njhs:double,A3_amt_alipay_njhs:double,A3_qty_alipay_njhs:double,A3_unum_alipay_njhs:double,A5_pv_ipv:double,A5_pv_uv:double,A5_cart_ipv:double,A5_cart_uv:double,A5_collect_uv:double,A5_num_gmv:double,A5_amt_gmv:double,A5_qty_gmv:double,A5_unum_gmv:double,A5_amt_alipay:double,A5_num_alipay:double,A5_qty_alipay:double,A5_unum_alipay:double,A5_ztc_pv_ipv:double,A5_tbk_pv_ipv:double,A5_ss_pv_ipv:double,A5_jhs_pv_ipv:double,A5_ztc_pv_uv:double,A5_tbk_pv_uv:double,A5_ss_pv_uv:double,A5_jhs_pv_uv:double,A5_num_alipay_njhs:double,A5_amt_alipay_njhs:double,A5_qty_alipay_njhs:double,A5_unum_alipay_njhs:double,A7_pv_ipv:double,A7_pv_uv:double,A7_cart_ipv:double,A7_cart_uv:double,A7_collect_uv:double,A7_num_gmv:double,A7_amt_gmv:double,A7_qty_gmv:double,A7_unum_gmv:double,A7_amt_alipay:double,A7_num_alipay:double,A7_qty_alipay:double,A7_unum_alipay:double,A7_ztc_pv_ipv:double,A7_tbk_pv_ipv:double,A7_ss_pv_ipv:double,A7_jhs_pv_ipv:double,A7_ztc_pv_uv:double,A7_tbk_pv_uv:double,A7_ss_pv_uv:double,A7_jhs_pv_uv:double,A7_num_alipay_njhs:double,A7_amt_alipay_njhs:double,A7_qty_alipay_njhs:double,A7_unum_alipay_njhs:double,A10_pv_ipv:double,A10_pv_uv:double,A10_cart_ipv:double,A10_cart_uv:double,A10_collect_uv:double,A10_num_gmv:double,A10_amt_gmv:double,A10_qty_gmv:double,A10_unum_gmv:double,A10_amt_alipay:double,A10_num_alipay:double,A10_qty_alipay:double,A10_unum_alipay:double,A10_ztc_pv_ipv:double,A10_tbk_pv_ipv:double,A10_ss_pv_ipv:double,A10_jhs_pv_ipv:double,A10_ztc_pv_uv:double,A10_tbk_pv_uv:double,A10_ss_pv_uv:double,A10_jhs_pv_uv:double,A10_num_alipay_njhs:double,A10_amt_alipay_njhs:double,A10_qty_alipay_njhs:double,A10_unum_alipay_njhs:double,A14_pv_ipv:double,A14_pv_uv:double,A14_cart_ipv:double,A14_cart_uv:double,A14_collect_uv:double,A14_num_gmv:double,A14_amt_gmv:double,A14_qty_gmv:double,A14_unum_gmv:double,A14_amt_alipay:double,A14_num_alipay:double,A14_qty_alipay:double,A14_unum_alipay:double,A14_ztc_pv_ipv:double,A14_tbk_pv_ipv:double,A14_ss_pv_ipv:double,A14_jhs_pv_ipv:double,A14_ztc_pv_uv:double,A14_tbk_pv_uv:double,A14_ss_pv_uv:double,A14_jhs_pv_uv:double,A14_num_alipay_njhs:double,A14_amt_alipay_njhs:double,A14_qty_alipay_njhs:double,A14_unum_alipay_njhs:double,A28_pv_ipv:double,A28_pv_uv:double,A28_cart_ipv:double,A28_cart_uv:double,A28_collect_uv:double,A28_num_gmv:double,A28_amt_gmv:double,A28_qty_gmv:double,A28_unum_gmv:double,A28_amt_alipay:double,A28_num_alipay:double,A28_qty_alipay:double,A28_unum_alipay:double,A28_ztc_pv_ipv:double,A28_tbk_pv_ipv:double,A28_ss_pv_ipv:double,A28_jhs_pv_ipv:double,A28_ztc_pv_uv:double,A28_tbk_pv_uv:double,A28_ss_pv_uv:double,A28_jhs_pv_uv:double,A28_num_alipay_njhs:double,A28_amt_alipay_njhs:double,A28_qty_alipay_njhs:double,A28_unum_alipay_njhs:double</mapOutputValue>
 
-    <numReduceTask>8</numReduceTask>
+    <numReduceTask>500</numReduceTask>
 
     <!-- tables -->
     <inputTables>
         <table>
-            <name>wordcount_in</name>
-            <partitions>
-                <partition>dt={yyyymmdd}</partition>
-                <partition>dt={yyyymmdd-1}</partition>
-            </partitions>
+            <name>avg_feature</name>
         </table>
     </inputTables>
     <outputTable>
-        <name>wordcount_out</name>
-        <partition>dt={yyyymmdd}</partition>
+        <name>cross_feature</name>
     </outputTable>
 </mapred>

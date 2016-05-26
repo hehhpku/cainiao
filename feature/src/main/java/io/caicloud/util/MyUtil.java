@@ -66,6 +66,21 @@ public class MyUtil {
         return value;
     }
 
+    public static double calcPrice(double amount, double qty) {
+        if (qty < 1e-1) {
+            return 0d;
+        }
+        double price = amount / Math.max(1, qty);
+        return MyUtil.round(price);
+    }
+
+    public static double calcRatio(double x, double y) {
+        y = Math.max(1, y);
+//        double ratio = Math.min(1, x / y);
+        double ratio = x / y;
+        return MyUtil.round(ratio * 100);
+    }
+
     public static void main(String[] args) {
         Long day = 20160520L;
         for (int i = -14; i < 14; i++) {

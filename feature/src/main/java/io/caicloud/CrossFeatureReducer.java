@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class CrossFeatureReducer extends ReducerBase {
     private Record result;
+    private final int[] intervals = {3, 5, 7, 10, 14, 28};
     private MyDateUtil myDateUtil = new MyDateUtil();
 
     public void setup(TaskContext context) throws IOException {
@@ -30,110 +31,80 @@ public class CrossFeatureReducer extends ReducerBase {
 
     @Override
     public void reduce(Record key, Iterator<Record> values, TaskContext context) throws IOException {
-        // 记录当前item的销售起始日期
-        long startDay = myDateUtil.END_DAY;
         Map<Long, Object[]> map = new HashMap<Long, Object[]>();
         while (values.hasNext()) {
             Record val = values.next();
-            Long day = val.getBigint(0);
-            if (day < startDay) {
-                startDay = day;
-            }
+            Long day = val.getBigint(1);
             map.put(day, val.toArray());
         }
-
-        // 缺失值填充
-//        int startIndex = myDateUtil.getDayMap().get(startDay);
-//        Object[] firstRecord = map.get(startDay);
-//        for (int i = startIndex; i < myDateUtil.getDayList().size(); i++) {
-//            Long day = myDateUtil.getDayList().get(i);
-//            if (!map.containsKey(day)) {
-//                Object[] emptyRecords = new Object[32];
-//                Arrays.fill(emptyRecords, 0);
-//                emptyRecords[0] = day;
-//                for (int j = 1; j < 7; j++) {
-//                    emptyRecords[j] = firstRecord[j];
-//                }
-//                emptyRecords[13] = 0d;  //14:amt_gmv
-//                emptyRecords[16] = 0d;  //17:amt_alipay
-//                emptyRecords[29] = 0d;  //30:amt_alipay_njhs
-//                map.put(day, emptyRecords);
-//            }
-//        }
-
 
         for (Map.Entry<Long, Object[]> entry : map.entrySet()) {
             Long day = entry.getKey();
             Object[] recordValue = entry.getValue();
 
-            if (!myDateUtil.getPromotionDayMap().containsKey(day)) {
-                result.set(recordValue);
-                context.write(result);
-                continue;
-            }
-
             int index = -1;
-            for (int i = 0; i < 7; i++) {
+
+            // sale_sum,thedate,item_id,store_code,day01~day14
+            for (int i = 0; i < 18; i++) {
                 result.set(++index, recordValue[i]);
             }
 
-            long saleSum = 0;   // 记录销量之和
-            int N = 0;          // 记录有效的日期数量
+            for (int i = 0; i < intervals.length; i++) {
+                int t = 18 + i * 25;
+                double pv_ipv = MyUtil.parseDouble(recordValue[t]);         // pv
+                double pv_uv = MyUtil.parseDouble(recordValue[t + 1]);      // uv
+                double cart_ipv = MyUtil.parseDouble(recordValue[t + 2]);   // 加购
+                double collect_uv = MyUtil.parseDouble(recordValue[t + 4]); // 收藏
 
-            // 获取前后一周的销量之和（不包含当天）
-            for (int i = -7; i <= 7; i++) {
-                if (i == 0) {
-                    continue;
-                }
-                Long nearDay = MyUtil.getNearDay(day, i);
-                Object[] nearRecord = map.get(nearDay);
-                if (nearRecord != null) {
-                    saleSum += MyUtil.parseLong(nearRecord[30]);
-                    N++;
+                double amt_gmv = MyUtil.parseDouble(recordValue[t + 6]);  // 拍下
+                double qty_gmv = MyUtil.parseDouble(recordValue[t + 7]);  // 拍下件数
+                double price_gmv = MyUtil.calcPrice(amt_gmv, qty_gmv);
+
+                double amt_alipay = MyUtil.parseDouble(recordValue[t + 9]); // 支付
+                double qty_alipay = MyUtil.parseDouble(recordValue[t + 11]);
+                double unum_alipay = MyUtil.parseDouble(recordValue[t + 12]);
+                double price_alipay = MyUtil.calcPrice(amt_alipay, qty_alipay);
+
+                double ztc_pv_ipv = MyUtil.parseDouble(recordValue[t + 13]);
+                double tbk_pv_ipv = MyUtil.parseDouble(recordValue[t + 14]);
+                double ss_pv_ipv = MyUtil.parseDouble(recordValue[t + 15]);
+                double jhs_pv_ipv = MyUtil.parseDouble(recordValue[t + 16]);
+                double pv_sum = ztc_pv_ipv + tbk_pv_ipv + ss_pv_ipv + jhs_pv_ipv;
+                double ztc_pv_ratio = MyUtil.calcRatio(ztc_pv_ipv, pv_sum);
+                double tbk_pv_ratio = MyUtil.calcRatio(tbk_pv_ipv, pv_sum);
+                double ss_pv_ratio = MyUtil.calcRatio(ss_pv_ipv, pv_sum);
+                double jhs_pv_ratio = MyUtil.calcRatio(jhs_pv_ipv, pv_sum);
+
+                double amt_alipay_njhs = MyUtil.parseDouble(recordValue[t + 22]);// 非聚划算支付
+                double qty_alipay_njhs = MyUtil.parseDouble(recordValue[t + 23]);
+                double price_alipay_njhs = MyUtil.calcPrice(amt_alipay_njhs, qty_alipay_njhs);
+
+                double uv_ipv_ratio = MyUtil.calcRatio(pv_uv, pv_ipv);  // pv/uv
+                double cart_ipv_ratio = MyUtil.calcRatio(cart_ipv, pv_ipv); // pv加购率
+                double collect_uv_ratio = MyUtil.calcRatio(collect_uv, pv_uv); // uv收藏率
+                double gmv_ipv_ratio = MyUtil.calcRatio(qty_gmv, pv_ipv);   // pv拍下率
+                double alipay_ipv_ratio = MyUtil.calcRatio(qty_alipay, pv_ipv); // pv支付率
+                double alipay_njhs_ipv_ratio = MyUtil.calcRatio(qty_alipay_njhs, pv_ipv);   // 非聚划算pv支付率
+                double alipay_njhs_pay_ratio = MyUtil.calcRatio(qty_alipay_njhs, qty_alipay);// 非聚划算占总成交的比率
+
+                double alipay_cart_ratio = MyUtil.calcRatio(qty_alipay, cart_ipv);      // 加购=>支付
+                double alipay_collect_ratio = MyUtil.calcRatio(unum_alipay, collect_uv); // 收藏=>支付
+                double alipay_gmv_ratio = MyUtil.calcRatio(qty_alipay, qty_gmv);        // 拍下=>支付
+
+                double[] columns = {pv_ipv, pv_uv, cart_ipv, collect_uv, qty_gmv, price_gmv,
+                        qty_alipay, price_alipay,
+                        ztc_pv_ratio, tbk_pv_ratio, ss_pv_ratio, jhs_pv_ratio,
+                        qty_alipay_njhs, price_alipay_njhs,
+                        uv_ipv_ratio, cart_ipv_ratio, collect_uv_ratio, gmv_ipv_ratio,
+                        alipay_ipv_ratio, alipay_njhs_ipv_ratio, alipay_njhs_pay_ratio,
+                        alipay_cart_ratio, alipay_collect_ratio, alipay_gmv_ratio};
+
+                for (int j = 0; j < columns.length; j++) {
+                    result.set(++index, columns[j]);
                 }
             }
 
-            // 计算销量均值
-            double saleAvg = saleSum * 1.0 / Math.max(N, 1);
 
-            long storeCode = MyUtil.parseLong(recordValue[2]);
-            long sale = MyUtil.parseLong(recordValue[30]);
-
-            // 如果当天销量 > 均值的3倍，而且当天销量>60(全国)或20(地区)，则需进行平滑
-            if (sale > saleAvg * 3) {
-                if ((storeCode == 0 && sale > 60)
-                        || (storeCode != 0 && sale > 20))
-                {
-                    double[] sumRecord = new double[32];
-                    Arrays.fill(sumRecord, 0d);
-                    int M = 0;
-                    for (int i = -7; i <= 7; i++) {
-                        if (i == 0) {
-                            continue;
-                        }
-                        Long nearDay = MyUtil.getNearDay(day, -i);
-                        Object[] nearRecord = map.get(nearDay);
-                        if (nearRecord != null) {
-                            for (int j = 7; j < 32; j++) {
-                                sumRecord[j] += MyUtil.parseDouble(nearRecord[j]);
-                            }
-                            M++;
-                        }
-                    }
-
-                    for (int j = 7; j < 32; j++) {
-                        double avg = MyUtil.round(sumRecord[j] / Math.max(M, 1));
-                        result.set(++index, avg);
-                    }
-                    context.write(result);
-                    continue;
-                }
-            }
-
-            // 获取各个时间段前N天的feature（包含当天）
-            for (int j = 7; j < 32; j++) {
-                result.set(++index, recordValue[j]);
-            }
             context.write(result);
         }
     }

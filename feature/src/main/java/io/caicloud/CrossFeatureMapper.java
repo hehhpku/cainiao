@@ -26,13 +26,12 @@ public class CrossFeatureMapper extends MapperBase {
 
     @Override
     public void map(long key, Record record, TaskContext context) throws IOException {
-        keyRecord.set(0, record.getBigint(1));  // item_id
-        keyRecord.set(1, record.getBigint(2));  // store_code
+        keyRecord.set(0, record.getBigint(2));  // item_id
+        keyRecord.set(1, record.getBigint(3));  // store_code
 
         for (int i = 0; i < record.getColumnCount(); i++) {
             valueRecord.set(i, record.get(i));
         }
-
         context.write(keyRecord, valueRecord);
     }
 }
