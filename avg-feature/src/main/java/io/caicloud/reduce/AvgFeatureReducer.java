@@ -20,7 +20,7 @@ import java.util.*;
 
 public class AvgFeatureReducer extends ReducerBase {
     private Record result;
-    private final List<Integer> intervals = Arrays.asList(3, 7, 14);
+    private final List<Integer> intervals = Arrays.asList(3, 5, 7, 10, 14, 28);
 
     public void setup(TaskContext context) throws IOException {
         result = context.createOutputRecord();
@@ -54,8 +54,8 @@ public class AvgFeatureReducer extends ReducerBase {
             // 设置label：后14天的销量之和
             result.set(index, saleSum);
 
-            // 设置key: date-item-store_code
-            for (int i = 0; i < 3; i++) {
+            // 设置key: date/item/store_code/cate_id/level_id/brand_id/supplier_id
+            for (int i = 0; i < 7; i++) {
                 result.set(++index, Long.parseLong(recordValue[i].toString()));
             }
 
