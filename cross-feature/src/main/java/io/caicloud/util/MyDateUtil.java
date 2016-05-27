@@ -18,6 +18,7 @@ public class MyDateUtil {
 
     public final long START_DAY = 20141001L;
     public final long END_DAY = 20151227L;
+    public final long TRAIN_END_DAY = 20151125;
     public final long[] PROMOTION_DAYS = {20141111, 20141212, 20150614, 20150618, 20151111, 20151212};
 
     public Map<Long, Integer> dayMap = new HashMap<Long, Integer>();
@@ -54,16 +55,25 @@ public class MyDateUtil {
         }
     }
 
-    public Map<Long, Integer> getDayMap() {
-        return dayMap;
+    public long getDiffDate(Long day1, Long day2) {
+        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+        try {
+            Date date1 = df.parse(String.valueOf(day1));
+            Date date2 = df.parse(String.valueOf(day2));
+            return (date1.getTime() - date2.getTime()) / (24 * 60 * 60 * 1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
-    public List<Long> getDayList() {
-        return dayList;
-    }
-
-    public Map<Long, Integer> getPromotionDayMap() {
-        return promotionDayMap;
+    public long getDiffDays(Long day1, Long day2) {
+        if (dayMap.containsKey(day1) && dayMap.containsKey(day2)) {
+            int index1 = dayMap.get(day1);
+            int index2 = dayMap.get(day2);
+            return Math.abs(index1 - index2);
+        }
+        return -1;
     }
 
     /**

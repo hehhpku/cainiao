@@ -31,26 +31,36 @@ public class CrossFeatureReducer extends ReducerBase {
 
     @Override
     public void reduce(Record key, Iterator<Record> values, TaskContext context) throws IOException {
+        Long starDay = myDateUtil.END_DAY;
         Map<Long, Object[]> map = new HashMap<Long, Object[]>();
         while (values.hasNext()) {
             Record val = values.next();
             Long day = val.getBigint(1);
+            if (starDay > day) {
+                starDay = day;
+            }
             map.put(day, val.toArray());
         }
 
         for (Map.Entry<Long, Object[]> entry : map.entrySet()) {
             Long day = entry.getKey();
+            if (myDateUtil.getDiffDays(day, starDay) < 14 && starDay < myDateUtil.TRAIN_END_DAY) {
+                continue;
+            }
             Object[] recordValue = entry.getValue();
 
             int index = -1;
 
-            // sale_sum,thedate,item_id,store_code,day01~day14
-            for (int i = 0; i < 18; i++) {
+            // sale_sum,thedate,item_id,store_code,cate,level,brand,supplier,day01~day14
+            for (int i = 0; i < 22; i++) {
                 result.set(++index, recordValue[i]);
             }
 
+            double[][] columns = new double[intervals.length][24];
+
+            // 计算价格特征、比率特征
             for (int i = 0; i < intervals.length; i++) {
-                int t = 18 + i * 25;
+                int t = 22 + i * 25;
                 double pv_ipv = MyUtil.parseDouble(recordValue[t]);         // pv
                 double pv_uv = MyUtil.parseDouble(recordValue[t + 1]);      // uv
                 double cart_ipv = MyUtil.parseDouble(recordValue[t + 2]);   // 加购
@@ -91,7 +101,7 @@ public class CrossFeatureReducer extends ReducerBase {
                 double alipay_collect_ratio = MyUtil.calcRatio(unum_alipay, collect_uv); // 收藏=>支付
                 double alipay_gmv_ratio = MyUtil.calcRatio(qty_alipay, qty_gmv);        // 拍下=>支付
 
-                double[] columns = {pv_ipv, pv_uv, cart_ipv, collect_uv, qty_gmv, price_gmv,
+                double[] column = {pv_ipv, pv_uv, cart_ipv, collect_uv, qty_gmv, price_gmv,
                         qty_alipay, price_alipay,
                         ztc_pv_ratio, tbk_pv_ratio, ss_pv_ratio, jhs_pv_ratio,
                         qty_alipay_njhs, price_alipay_njhs,
@@ -99,11 +109,21 @@ public class CrossFeatureReducer extends ReducerBase {
                         alipay_ipv_ratio, alipay_njhs_ipv_ratio, alipay_njhs_pay_ratio,
                         alipay_cart_ratio, alipay_collect_ratio, alipay_gmv_ratio};
 
-                for (int j = 0; j < columns.length; j++) {
-                    result.set(++index, columns[j]);
+                for (int j = 0; j < column.length; j++) {
+                    result.set(++index, column[j]);
+                    columns[i][j] = column[j];
                 }
             }
 
+            // 趋势特征
+            for (int i = 0; i < intervals.length - 1; i++) {
+                double[] columnA = columns[i];
+                double[] columnB = columns[i+1];
+                for (int j = 0; j < columnA.length; j++) {
+                    double trend = MyUtil.round(columnA[j] - columnB[j]);
+                    result.set(++index, trend);
+                }
+            }
 
             context.write(result);
         }
