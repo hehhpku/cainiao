@@ -96,10 +96,10 @@ public class SmoothReducer extends ReducerBase {
             long storeCode = MyUtil.parseLong(recordValue[2]);
             long sale = MyUtil.parseLong(recordValue[30]);
 
-            // 如果当天销量 > 均值的3倍，而且当天销量>60(全国)或20(地区)，则需进行平滑
-            if (sale > saleAvg * 3) {
+            // 如果当天销量 > 均值的2.5倍，而且当天销量>60(全国)15(地区)，则需进行平滑
+            if (sale > saleAvg * 2.5) {
                 if ((storeCode == 0 && sale > 60)
-                        || (storeCode != 0 && sale > 20))
+                        || (storeCode != 0 && sale > 15))
                 {
                     double[] sumRecord = new double[32];
                     Arrays.fill(sumRecord, 0d);

@@ -19,7 +19,7 @@
     <!--<outputKeySortColumns>col1,col2</outputKeySortColumns>-->
     <!--<outputKeySortOrders>ASC,DESC</outputKeySortOrders>-->
     <!--<outputGroupingColumns>col1,col2</outputGroupingColumns>-->
-    <numReduceTask>100</numReduceTask>
+    <numReduceTask>200</numReduceTask>
     <!--<memoryForMapTask>2048</memoryForMapTask>-->
     <!--<memoryForReduceTask>2048</memoryForReduceTask>-->
 
