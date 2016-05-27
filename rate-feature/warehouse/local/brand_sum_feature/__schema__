@@ -1,0 +1,3 @@
+project=local
+table=brand_sum_feature
+columns=brand_id:bigint,store_code:bigint,thedate:bigint,cart_ipv_brand_sum:double,qty_gmv_brand_sum:double,qty_alipay_brand_sum:double,qty_alipay_njhs_brand_sum:double,collect_uv_brand_sum:double
