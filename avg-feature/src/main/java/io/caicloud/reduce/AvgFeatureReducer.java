@@ -4,6 +4,7 @@ import com.aliyun.odps.data.Record;
 import com.aliyun.odps.data.TableInfo;
 import com.aliyun.odps.mapred.Reducer;
 import com.aliyun.odps.mapred.ReducerBase;
+import io.caicloud.util.MyDateUtil;
 import io.caicloud.util.MyUtil;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.util.*;
 public class AvgFeatureReducer extends ReducerBase {
     private Record result;
     private final List<Integer> intervals = Arrays.asList(3, 5, 7, 10, 14, 28);
+    private MyDateUtil myDateUtil = new MyDateUtil();
 
     public void setup(TaskContext context) throws IOException {
         result = context.createOutputRecord();
@@ -29,11 +31,35 @@ public class AvgFeatureReducer extends ReducerBase {
     @Override
     public void reduce(Record key, Iterator<Record> values, TaskContext context) throws IOException {
         Map<Long, Object[]> map = new HashMap<Long, Object[]>();
+        Long startDay = myDateUtil.END_DAY;
         while (values.hasNext()) {
             Record val = values.next();
-            map.put(val.getBigint(0), val.toArray());
+            Long day = val.getBigint(0);
+            map.put(day, val.toArray());
+            if (startDay > day) {
+                startDay = day;
+            }
         }
 
+//        // 缺失值填充
+//        int startDayIndex = myDateUtil.dayMap.get(startDay);
+//        int trainDayIndex = myDateUtil.dayMap.get(myDateUtil.TRAIN_END_DAY);
+//        Object[] firstRecord = map.get(startDay);
+//        for (int i = Math.max(startDayIndex, trainDayIndex); i < myDateUtil.dayList.size(); i++) {
+//            long day = myDateUtil.dayList.get(i);
+//            if (!map.containsKey(day)) {
+//                Object[] emptyRecords = new Object[32];
+//                Arrays.fill(emptyRecords, 0);
+//                emptyRecords[0] = day;
+//                for (int j = 1; j < 7; j++) {
+//                    emptyRecords[j] = firstRecord[j];
+//                }
+//                emptyRecords[13] = 0d;  //14:amt_gmv
+//                emptyRecords[16] = 0d;  //17:amt_alipay
+//                emptyRecords[29] = 0d;  //30:amt_alipay_njhs
+//                map.put(day, emptyRecords);
+//            }
+//        }
 
         for (Map.Entry<Long, Object[]> entry : map.entrySet()) {
             Long day = entry.getKey();

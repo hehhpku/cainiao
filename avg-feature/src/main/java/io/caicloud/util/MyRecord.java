@@ -2,8 +2,6 @@ package io.caicloud.util;
 
 import com.aliyun.odps.data.Record;
 
-import java.util.Objects;
-
 /**
  * MyRecord.java
  *

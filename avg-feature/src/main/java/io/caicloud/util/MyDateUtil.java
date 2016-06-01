@@ -18,7 +18,9 @@ public class MyDateUtil {
 
     public final long START_DAY = 20141001L;
     public final long END_DAY = 20151227L;
-    public final long[] PROMOTION_DAYS = {20141111, 20141212, 20150614, 20150618, 20151111, 20151212};
+    public final long TRAIN_END_DAY = 20151025;
+    public final List<Long> PROMOTION_DAYS = Arrays.asList(20141111L, 20141212L, 20150614L, 20150618L, 20151111L, 20151212L);
+    public final List<Long> FESTIVAL_DAYS = Arrays.asList(20150101L, 20150404L, 20150501L, 20150903L, 20151001L, 20151002L, 20151003L);
 
     public Map<Long, Integer> dayMap = new HashMap<Long, Integer>();
     public Map<Long, Integer> promotionDayMap = new HashMap<Long, Integer>();
@@ -46,24 +48,33 @@ public class MyDateUtil {
             i++;
         }
 
-        for (int j = 0; j < PROMOTION_DAYS.length; j++) {
+        for (int j = 0; j < PROMOTION_DAYS.size(); j++) {
             for (int k = -7; k < 2; k++) {
-                Long nextDay = getNearDay(PROMOTION_DAYS[j], k);
+                Long nextDay = getNearDay(PROMOTION_DAYS.get(j), k);
                 promotionDayMap.put(nextDay, 0);
             }
         }
     }
 
-    public Map<Long, Integer> getDayMap() {
-        return dayMap;
+    public long getDiffDate(Long day1, Long day2) {
+        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+        try {
+            Date date1 = df.parse(String.valueOf(day1));
+            Date date2 = df.parse(String.valueOf(day2));
+            return (date1.getTime() - date2.getTime()) / (24 * 60 * 60 * 1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
-    public List<Long> getDayList() {
-        return dayList;
-    }
-
-    public Map<Long, Integer> getPromotionDayMap() {
-        return promotionDayMap;
+    public long getDiffDays(Long day1, Long day2) {
+        if (dayMap.containsKey(day1) && dayMap.containsKey(day2)) {
+            int index1 = dayMap.get(day1);
+            int index2 = dayMap.get(day2);
+            return Math.abs(index1 - index2);
+        }
+        return -1;
     }
 
     /**
@@ -103,6 +114,19 @@ public class MyDateUtil {
         int startIndex = index + start;
         int endIndex = index + end;
         return dayList.subList(startIndex, endIndex);
+    }
+
+    public int getSeason(Long day) {
+        if (day >= 20150301 && day < 20150501) {
+            return 1;
+        }
+        if (day >= 20150501 && day < 20150901) {
+            return 2;
+        }
+        if (day >= 20150901 && day < 20151101) {
+            return 3;
+        }
+        return 0;
     }
 
     public static void main(String[] args) {
