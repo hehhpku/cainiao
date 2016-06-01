@@ -31,20 +31,30 @@ public class CrossFeatureReducer extends ReducerBase {
 
     @Override
     public void reduce(Record key, Iterator<Record> values, TaskContext context) throws IOException {
-        Long starDay = myDateUtil.END_DAY;
+        Long startDay = myDateUtil.END_DAY;
         Map<Long, Object[]> map = new HashMap<Long, Object[]>();
+        Long saleSum = 0L;
+        Long saleMax = 0L;
+        Long saleMin = 100000000L;
+        int N = 0;
         while (values.hasNext()) {
             Record val = values.next();
             Long day = val.getBigint(1);
-            if (starDay > day) {
-                starDay = day;
+            if (startDay > day) {
+                startDay = day;
             }
             map.put(day, val.toArray());
+            Long sale = val.getBigint(0);
+            saleSum += sale;
+            saleMax = Math.max(saleMax, sale);
+            saleMin = Math.min(saleMin, sale);
+            N++;
         }
+        double avgSale = MyUtil.round(saleSum / (Math.max(N, 1) * 14.0));
 
         for (Map.Entry<Long, Object[]> entry : map.entrySet()) {
             Long day = entry.getKey();
-            if (myDateUtil.getDiffDays(day, starDay) < 14 && starDay < myDateUtil.TRAIN_END_DAY) {
+            if (myDateUtil.getDiffDays(day, startDay) < 14 && startDay < myDateUtil.TRAIN_END_DAY) {
                 continue;
             }
             Object[] recordValue = entry.getValue();
@@ -120,10 +130,33 @@ public class CrossFeatureReducer extends ReducerBase {
                 double[] columnA = columns[i];
                 double[] columnB = columns[i+1];
                 for (int j = 0; j < columnA.length; j++) {
-                    double trend = MyUtil.round(columnA[j] - columnB[j]);
+                    double trend = MyUtil.calcTrend(columnA[j], columnB[j]);
                     result.set(++index, trend);
                 }
             }
+
+            // 时间特征
+            int dayIndex = myDateUtil.dayMap.get(day);
+            int startDayIndex = myDateUtil.dayMap.get(startDay);
+            int diffDayIndex = dayIndex - startDayIndex;
+            int season = myDateUtil.getSeason(day);
+
+            int promotionDay = 0;
+            int festivalDay = 0;
+            for (int i = 0; i < 14; i++) {
+                Long nearDay = MyUtil.getNearDay(day, i);
+                if (myDateUtil.PROMOTION_DAYS.contains(nearDay)) {
+                    promotionDay = 1;
+                }
+                if (myDateUtil.FESTIVAL_DAYS.contains(nearDay)) {
+                    festivalDay++;
+                }
+            }
+            result.set(++index, diffDayIndex);
+            result.set(++index, season);
+            result.set(++index, promotionDay);
+            result.set(++index, festivalDay);
+            result.set(++index, avgSale);
 
             context.write(result);
         }

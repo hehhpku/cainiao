@@ -81,6 +81,20 @@ public class MyUtil {
         return MyUtil.round(ratio * 100);
     }
 
+    public static double calcTrend(double x, double y) {
+        double ratio = 0;
+        if (y < 1) {
+            return ratio;
+        }
+
+        if (x < y) {
+            ratio = 1 - x / y;
+        } else {
+            ratio = y / x - 1;
+        }
+        return MyUtil.round(ratio * 100);
+    }
+
     public static void main(String[] args) {
         Long day = 20160520L;
         for (int i = -14; i < 14; i++) {
