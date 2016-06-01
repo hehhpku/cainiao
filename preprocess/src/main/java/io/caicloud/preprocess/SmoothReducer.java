@@ -63,7 +63,7 @@ public class SmoothReducer extends ReducerBase {
             Long day = entry.getKey();
             Object[] recordValue = entry.getValue();
 
-            if (!myDateUtil.getPromotionDayMap().containsKey(day)) {
+            if (!myDateUtil.promotionDayMap.containsKey(day)) {
                 result.set(recordValue);
                 context.write(result);
                 continue;
@@ -96,8 +96,8 @@ public class SmoothReducer extends ReducerBase {
             long storeCode = MyUtil.parseLong(recordValue[2]);
             long sale = MyUtil.parseLong(recordValue[30]);
 
-            // 如果当天销量 > 均值的2.5倍，而且当天销量>60(全国)15(地区)，则需进行平滑
-            if (sale > saleAvg * 2.5) {
+            // 如果当天销量 > 均值的3倍，而且当天销量>60(全国)15(地区)，则需进行平滑
+            if (sale > saleAvg * 3) {
                 if ((storeCode == 0 && sale > 60)
                         || (storeCode != 0 && sale > 15))
                 {
@@ -120,7 +120,11 @@ public class SmoothReducer extends ReducerBase {
 
                     for (int j = 7; j < 32; j++) {
                         double avg = MyUtil.round(sumRecord[j] / Math.max(M, 1));
-                        result.set(++index, avg);
+                        if (myDateUtil.DOUBLE_FIELD_INDEX.contains(j)) {
+                            result.set(++index, avg);
+                        } else {
+                            result.set(++index, (long) avg);
+                        }
                     }
                     context.write(result);
                     continue;
@@ -128,10 +132,10 @@ public class SmoothReducer extends ReducerBase {
             }
 
             // 获取各个时间段前N天的feature（包含当天）
-            for (int j = 7; j < 32; j++) {
-                result.set(++index, recordValue[j]);
-            }
-            context.write(result);
+//            for (int j = 7; j < 32; j++) {
+//                result.set(++index, recordValue[j]);
+//            }
+//            context.write(result);
         }
     }
 
