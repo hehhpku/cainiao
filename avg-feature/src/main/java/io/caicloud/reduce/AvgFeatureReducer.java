@@ -108,8 +108,11 @@ public class AvgFeatureReducer extends ReducerBase {
                         for (int j = 7; j < 32; j++) {
                             sumRecord[j] += MyUtil.parseDouble(nearRecord[j]);
                         }
-                        N++;
                     }
+                    if (nearDay < startDay) {
+                        break;
+                    }
+                    N++;
                 }
 
                 for (int j = 7; j < 32; j++) {

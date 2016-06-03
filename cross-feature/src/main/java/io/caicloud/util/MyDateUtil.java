@@ -20,7 +20,7 @@ public class MyDateUtil {
     public final long END_DAY = 20151227L;
     public final long TRAIN_END_DAY = 20151025;
     public final List<Long> PROMOTION_DAYS = Arrays.asList(20141111L, 20141212L, 20150614L, 20150618L, 20151111L, 20151212L);
-    public final List<Long> FESTIVAL_DAYS = Arrays.asList(20150101L, 20150404L, 20150501L, 20150903L, 20151001L, 20151002L, 20151003L);
+    public final List<Long> FESTIVAL_DAYS = Arrays.asList(20150101L, 20150404L, 20150501L, 20150903L, 20151001L, 20151002L, 20151003L, 20160101L);
 
     public Map<Long, Integer> dayMap = new HashMap<Long, Integer>();
     public Map<Long, Integer> promotionDayMap = new HashMap<Long, Integer>();

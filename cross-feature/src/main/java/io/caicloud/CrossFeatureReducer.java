@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class CrossFeatureReducer extends ReducerBase {
     private Record result;
-    private final int[] intervals = {3, 5, 7, 10, 14, 28};
+    private final int[] intervals = {1, 3, 7, 14, 28, 56};
     private MyDateUtil myDateUtil = new MyDateUtil();
 
     public void setup(TaskContext context) throws IOException {
@@ -61,10 +61,21 @@ public class CrossFeatureReducer extends ReducerBase {
 
             int index = -1;
 
-            // sale_sum,thedate,item_id,store_code,cate,level,brand,supplier,day01~day14
+            // sale_sum,thedate,item_id,store_code,cate,level,brand,supplier
             for (int i = 0; i < 22; i++) {
                 result.set(++index, recordValue[i]);
             }
+
+            // day01~day14
+//            for (int i = 14; i < 28; i++) {
+//                Long nearday = MyUtil.getNearDay(day, i);
+//                Object[] nearRecord = map.get(nearday);
+//                long sales = 0;
+//                if (nearRecord != null) {
+//                    sales = MyUtil.parseLong(nearRecord[0]) / 14;
+//                }
+//                result.set(++index, sales);
+//            }
 
             double[][] columns = new double[intervals.length][24];
 
@@ -152,11 +163,34 @@ public class CrossFeatureReducer extends ReducerBase {
                     festivalDay++;
                 }
             }
+
+            long minSale = Long.MAX_VALUE;
+            long maxSale = Long.MIN_VALUE;
+            double meanSale = 0;
+
+            // day01~day14
+            for (int i = 8; i < 22; i++) {
+                long daySale = MyUtil.parseLong(recordValue[i]);
+                minSale = Math.min(minSale, daySale);
+                maxSale = Math.max(maxSale, daySale);
+                meanSale += (double)daySale;
+            }
+            meanSale /= 14.0;
+            double variance = 0;
+            for (int i = 8; i < 22; i++) {
+                long daySale = MyUtil.parseLong(recordValue[i]);
+                variance += Math.pow(daySale - meanSale, 2);
+            }
+            double std = MyUtil.round(Math.sqrt(variance / 14.0));
+
             result.set(++index, diffDayIndex);
             result.set(++index, season);
             result.set(++index, promotionDay);
             result.set(++index, festivalDay);
             result.set(++index, avgSale);
+            result.set(++index, std);
+            result.set(++index, minSale);
+            result.set(++index, maxSale);
 
             context.write(result);
         }
