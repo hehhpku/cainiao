@@ -21,7 +21,7 @@ import java.util.*;
 
 public class AvgFeatureReducer extends ReducerBase {
     private Record result;
-    private final List<Integer> intervals = Arrays.asList(3, 5, 7, 10, 14, 28);
+    private final List<Integer> intervals = Arrays.asList(1, 3, 7, 14, 28, 56);
     private MyDateUtil myDateUtil = new MyDateUtil();
 
     public void setup(TaskContext context) throws IOException {
