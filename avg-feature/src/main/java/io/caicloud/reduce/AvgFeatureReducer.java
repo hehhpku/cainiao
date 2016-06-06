@@ -41,37 +41,26 @@ public class AvgFeatureReducer extends ReducerBase {
             }
         }
 
-//        // 缺失值填充
-//        int startDayIndex = myDateUtil.dayMap.get(startDay);
-//        int trainDayIndex = myDateUtil.dayMap.get(myDateUtil.TRAIN_END_DAY);
-//        Object[] firstRecord = map.get(startDay);
-//        for (int i = Math.max(startDayIndex, trainDayIndex); i < myDateUtil.dayList.size(); i++) {
-//            long day = myDateUtil.dayList.get(i);
-//            if (!map.containsKey(day)) {
-//                Object[] emptyRecords = new Object[32];
-//                Arrays.fill(emptyRecords, 0);
-//                emptyRecords[0] = day;
-//                for (int j = 1; j < 7; j++) {
-//                    emptyRecords[j] = firstRecord[j];
-//                }
-//                emptyRecords[13] = 0d;  //14:amt_gmv
-//                emptyRecords[16] = 0d;  //17:amt_alipay
-//                emptyRecords[29] = 0d;  //30:amt_alipay_njhs
-//                map.put(day, emptyRecords);
-//            }
-//        }
-
         for (Map.Entry<Long, Object[]> entry : map.entrySet()) {
             Long day = entry.getKey();
             Object[] recordValue = entry.getValue();
 
             // 计算当前日期后14天的总销量（不包含当天）
             long saleSum = 0L;
-            for (int i = 1; i <= 14; i++) {
+            long nextSaleSum = 0L;
+            for (int i = 1; i <= 7; i++) {
                 Long nearDay = MyUtil.getNearDay(day, i);
                 Object[] nearRecord = map.get(nearDay);
                 if (nearRecord != null) {
                     saleSum += Long.parseLong(nearRecord[30].toString());
+                }
+            }
+
+            for (int i = 8; i <= 14; i++) {
+                Long nearDay = MyUtil.getNearDay(day, i);
+                Object[] nearRecord = map.get(nearDay);
+                if (nearRecord != null) {
+                    nextSaleSum += Long.parseLong(nearRecord[30].toString());
                 }
             }
 
@@ -121,6 +110,11 @@ public class AvgFeatureReducer extends ReducerBase {
                 }
             }
 
+            result.set(21, 0);
+            context.write(result);
+
+            result.set(0, nextSaleSum);
+            result.set(21, 1);
             context.write(result);
         }
     }

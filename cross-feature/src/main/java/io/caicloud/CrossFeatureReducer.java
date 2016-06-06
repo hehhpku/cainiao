@@ -54,7 +54,7 @@ public class CrossFeatureReducer extends ReducerBase {
 
         for (Map.Entry<Long, Object[]> entry : map.entrySet()) {
             Long day = entry.getKey();
-            if (myDateUtil.getDiffDays(day, startDay) < 14 && startDay < myDateUtil.TRAIN_END_DAY) {
+            if (myDateUtil.getDiffDays(day, startDay) < 28 && startDay < myDateUtil.TRAIN_END_DAY) {
                 continue;
             }
             Object[] recordValue = entry.getValue();
