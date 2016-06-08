@@ -40,24 +40,24 @@ public class SmoothReducer extends ReducerBase {
         }
 
         // 缺失值填充
-        int startIndex = myDateUtil.dayMap.get(startDay);
-        int trainDayIndex = myDateUtil.dayMap.get(myDateUtil.TRAIN_END_DAY);
-        Object[] firstRecord = map.get(startDay);
-        for (int i = Math.max(startIndex, trainDayIndex); i < myDateUtil.dayList.size(); i++) {
-            Long day = myDateUtil.dayList.get(i);
-            if (!map.containsKey(day)) {
-                Object[] emptyRecords = new Object[32];
-                Arrays.fill(emptyRecords, 0);
-                emptyRecords[0] = day;
-                for (int j = 1; j < 7; j++) {
-                    emptyRecords[j] = firstRecord[j];
-                }
-                emptyRecords[13] = 0d;  //14:amt_gmv
-                emptyRecords[16] = 0d;  //17:amt_alipay
-                emptyRecords[29] = 0d;  //30:amt_alipay_njhs
-                map.put(day, emptyRecords);
-            }
-        }
+//        int startIndex = myDateUtil.dayMap.get(startDay);
+//        int trainDayIndex = myDateUtil.dayMap.get(myDateUtil.TRAIN_END_DAY);
+//        Object[] firstRecord = map.get(startDay);
+//        for (int i = Math.max(startIndex, trainDayIndex); i < myDateUtil.dayList.size(); i++) {
+//            Long day = myDateUtil.dayList.get(i);
+//            if (!map.containsKey(day)) {
+//                Object[] emptyRecords = new Object[32];
+//                Arrays.fill(emptyRecords, 0);
+//                emptyRecords[0] = day;
+//                for (int j = 1; j < 7; j++) {
+//                    emptyRecords[j] = firstRecord[j];
+//                }
+//                emptyRecords[13] = 0d;  //14:amt_gmv
+//                emptyRecords[16] = 0d;  //17:amt_alipay
+//                emptyRecords[29] = 0d;  //30:amt_alipay_njhs
+//                map.put(day, emptyRecords);
+//            }
+//        }
 
         List<Long> keyList = new ArrayList<Long>(map.keySet());
         Collections.sort(keyList, Collections.reverseOrder());
@@ -86,14 +86,17 @@ public class SmoothReducer extends ReducerBase {
                 }
                 Long nearDay = MyUtil.getNearDay(day, i);
                 Object[] nearRecord = map.get(nearDay);
+                if (nearDay < startDay) {
+                    continue;
+                }
                 if (nearRecord != null) {
                     saleSum += MyUtil.parseLong(nearRecord[30]);
-                    //N++;
                 }
+                N++;
             }
 
             // 计算销量均值
-            double saleAvg = saleSum / 14.0;
+            double saleAvg = saleSum / Math.max(N, 1);
 
             // 过滤前后一周中的波峰，重新计算销量均值
 //            List<Long> filterDayList = new ArrayList<Long>();
@@ -122,36 +125,37 @@ public class SmoothReducer extends ReducerBase {
 
             // 如果当天销量 > 均值的3倍，而且当天销量>60(全国)15(地区)，则需进行平滑
             if (sale > saleAvg * 3) {
-                if ((storeCode == 0 && sale > 1000)
-                        || (storeCode != 0 && sale > 200))
-                {
-                    double[] sumRecord = new double[32];
-                    Arrays.fill(sumRecord, 0d);
-                    for (int i = -7; i <= 7; i++) {
-                        if (i == 0) {
-                            continue;
-                        }
-
-                        Long nearDay = MyUtil.getNearDay(day, -i);
-                        Object[] nearRecord = map.get(nearDay);
-                        if (nearRecord != null) {
-                            for (int j = 7; j < 32; j++) {
-                                sumRecord[j] += MyUtil.parseDouble(nearRecord[j]);
-                            }
-                        }
+                double[] sumRecord = new double[32];
+                Arrays.fill(sumRecord, 0d);
+                int M = 0;
+                for (int i = -7; i <= 7; i++) {
+                    if (i == 0) {
+                        continue;
                     }
 
-                    for (int j = 7; j < 32; j++) {
-                        double avg = MyUtil.round(sumRecord[j] / 14.0);
-                        if (myDateUtil.DOUBLE_FIELD_INDEX.contains(j)) {
-                            result.set(++index, avg);
-                        } else {
-                            result.set(++index, (long) avg);
+                    Long nearDay = MyUtil.getNearDay(day, -i);
+                    Object[] nearRecord = map.get(nearDay);
+                    if (nearDay < startDay) {
+                        continue;
+                    }
+                    if (nearRecord != null) {
+                        for (int j = 7; j < 32; j++) {
+                            sumRecord[j] += MyUtil.parseDouble(nearRecord[j]);
                         }
                     }
-                    context.write(result);
-                    continue;
+                    M++;
                 }
+
+                for (int j = 7; j < 32; j++) {
+                    double avg = MyUtil.round(sumRecord[j] / Math.max(M, 1));
+                    if (myDateUtil.DOUBLE_FIELD_INDEX.contains(j)) {
+                        result.set(++index, avg);
+                    } else {
+                        result.set(++index, (long) avg);
+                    }
+                }
+                context.write(result);
+                continue;
             }
 
             // 获取各个时间段前N天的feature（包含当天）

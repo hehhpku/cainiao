@@ -192,6 +192,15 @@ public class CrossFeatureReducer extends ReducerBase {
             result.set(++index, minSale);
             result.set(++index, maxSale);
 
+            long level_id = result.getBigint(5);
+            for (int i = 0; i < 13; i++) {
+                if (i + 1 == (int)level_id) {
+                    result.set(++index, 1);
+                } else {
+                    result.set(++index, 0);
+                }
+            }
+
             context.write(result);
         }
     }

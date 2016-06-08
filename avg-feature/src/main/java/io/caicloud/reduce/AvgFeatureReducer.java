@@ -48,19 +48,11 @@ public class AvgFeatureReducer extends ReducerBase {
             // 计算当前日期后14天的总销量（不包含当天）
             long saleSum = 0L;
             long nextSaleSum = 0L;
-            for (int i = 1; i <= 7; i++) {
+            for (int i = 1; i <= 14; i++) {
                 Long nearDay = MyUtil.getNearDay(day, i);
                 Object[] nearRecord = map.get(nearDay);
                 if (nearRecord != null) {
                     saleSum += Long.parseLong(nearRecord[30].toString());
-                }
-            }
-
-            for (int i = 8; i <= 14; i++) {
-                Long nearDay = MyUtil.getNearDay(day, i);
-                Object[] nearRecord = map.get(nearDay);
-                if (nearRecord != null) {
-                    nextSaleSum += Long.parseLong(nearRecord[30].toString());
                 }
             }
 
@@ -110,11 +102,6 @@ public class AvgFeatureReducer extends ReducerBase {
                 }
             }
 
-            result.set(21, 0);
-            context.write(result);
-
-            result.set(0, nextSaleSum);
-            result.set(21, 1);
             context.write(result);
         }
     }

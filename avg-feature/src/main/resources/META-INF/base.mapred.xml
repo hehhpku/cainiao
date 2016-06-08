@@ -26,7 +26,7 @@
     <!-- tables -->
     <inputTables>
         <table>
-            <name>all_item_feature</name>
+            <name>smoothed_item_feature</name>
             <partitions>
                 <!--<partition>dt={yyyymmdd}</partition>-->
                 <!--<partition>dt={yyyymmdd-1}</partition>-->
