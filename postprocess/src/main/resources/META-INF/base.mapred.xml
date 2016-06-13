@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapred>
+    <!-- profile -->
+    <baseId>125771790904</baseId>
+    <projectId>12901</projectId>
+    <resourceName>post_process</resourceName>
+    <idePath>工作流/</idePath>
+
+    <!-- classes -->
+    <jobLauncher>io.caicloud.JobLauncher</jobLauncher>
+    <mapper>io.caicloud.postprocess.PostMapper</mapper>
+    <reducer>io.caicloud.postprocess.PostReducer</reducer>
+
+    <!--task-->
+    <mapOutputKey>item_id:bigint,store_code:bigint</mapOutputKey>
+    <mapOutputValue>thedate:bigint,item_id:bigint,store_code:bigint,sale_sum:bigint,prediction_score:double,less:double,more:double</mapOutputValue>
+    <!--<partitionColumns>col1,col2</partitionColumns>-->
+    <!--<outputKeySortColumns>col1,col2</outputKeySortColumns>-->
+    <!--<outputKeySortOrders>ASC,DESC</outputKeySortOrders>-->
+    <!--<outputGroupingColumns>col1,col2</outputGroupingColumns>-->
+    <numReduceTask>50</numReduceTask>
+    <!--<memoryForMapTask>2048</memoryForMapTask>-->
+    <!--<memoryForReduceTask>2048</memoryForReduceTask>-->
+
+
+    <!-- tables -->
+    <inputTables>
+        <table>
+            <name>origin_prediction</name>
+            <!--<partitions>-->
+            <!--<partition>dt={yyyymmdd}</partition>-->
+            <!--<partition>dt={yyyymmdd-1}</partition>-->
+            <!--</partitions>-->
+        </table>
+    </inputTables>
+    <outputTable>
+        <name>post_prediction</name>
+        <!--<partition>dt={yyyymmdd}</partition>-->
+    </outputTable>
+</mapred>

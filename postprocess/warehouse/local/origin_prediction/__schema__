@@ -1,0 +1,3 @@
+project=local
+table=origin_prediction
+columns=thedate:bigint,item_id:bigint,store_code:bigint,sale_sum:bigint,prediction_score:double,less:double,more:double
