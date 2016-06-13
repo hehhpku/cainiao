@@ -95,6 +95,14 @@ public class MyUtil {
         return MyUtil.round(ratio * 100);
     }
 
+    public static double getLoss(double pred, double real, double less, double more) {
+        if (pred < real) {
+            return less * (real - pred);
+        } else {
+            return more * (pred - real);
+        }
+    }
+
     public static void main(String[] args) {
         Long day = 20160520L;
         for (int i = -14; i < 14; i++) {
