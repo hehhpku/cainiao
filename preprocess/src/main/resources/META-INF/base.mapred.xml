@@ -3,7 +3,7 @@
     <!-- profile -->
     <baseId>125771790904</baseId>
     <projectId>12901</projectId>
-    <resourceName>postprocess</resourceName>
+    <resourceName>postprocess_predict</resourceName>
     <idePath>工作流/preprocess</idePath>
 
     <!-- classes -->

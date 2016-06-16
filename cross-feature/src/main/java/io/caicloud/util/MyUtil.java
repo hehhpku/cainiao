@@ -95,6 +95,16 @@ public class MyUtil {
         return MyUtil.round(ratio * 100);
     }
 
+    public static double calcPriceTrend(double x, double y) {
+        double ratio = 0;
+        if (x < 1 || y < 1) {
+            return ratio;
+        }
+
+        ratio = x / y;
+        return MyUtil.round(ratio * 100);
+    }
+
     public static void main(String[] args) {
         Long day = 20160520L;
         for (int i = -14; i < 14; i++) {

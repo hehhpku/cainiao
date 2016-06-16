@@ -142,6 +142,9 @@ public class CrossFeatureReducer extends ReducerBase {
                 double[] columnB = columns[i+1];
                 for (int j = 0; j < columnA.length; j++) {
                     double trend = MyUtil.calcTrend(columnA[j], columnB[j]);
+                    if (j == 5 || j == 7 || j == 13) {
+                        trend = MyUtil.calcPriceTrend(columnA[j], columnB[j]);
+                    }
                     result.set(++index, trend);
                 }
             }

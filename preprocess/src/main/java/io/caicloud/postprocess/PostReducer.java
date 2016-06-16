@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public class PostReducer implements Reducer {
     private Record result;
+    private final long END_DAY = 20151227;
 
     public void setup(TaskContext context) throws IOException {
         result = context.createOutputRecord();
@@ -27,6 +28,7 @@ public class PostReducer implements Reducer {
         double less = 0;
         double more = 0;
 
+        boolean isValid = false;    // 是否含有预测日期
         Record val = null;
         Map<Long, Object[]> map = new HashMap<Long, Object[]>();
         while (values.hasNext()) {
@@ -41,13 +43,20 @@ public class PostReducer implements Reducer {
             if (thedate < 20151101) {
                 continue;
             }
-            if (thedate < 20151201) {
+
+            if (thedate < END_DAY) {
                 map.put(thedate, val.toArray());
-            }
-            if (thedate > 20151201) {
+            } else if (thedate == END_DAY) {
                 eval_sale = sale;
                 eval_prediction = prediction;
+                isValid = true;
+            } else {
+                // pass
             }
+        }
+
+        if (!isValid) {
+            return;
         }
 
         double bestLoss = Double.MAX_VALUE;
@@ -58,13 +67,13 @@ public class PostReducer implements Reducer {
         if (less < more) {
             if (eval_prediction < 50) {
                 low = 80;
-                high = 100;
+                high = 105;
             } else if (eval_prediction < 1000) {
                 low = 85;
                 high = 105;
             } else {
                 low = 90;
-                high = 110;
+                high = 105;
             }
         } else {
             if (eval_prediction < 50) {
@@ -97,9 +106,12 @@ public class PostReducer implements Reducer {
         }
 
         int index = -1;
-        for (int i = 0; i < 3; i++) {
-            result.set(++index, val.get(i));
-        }
+//        for (int i = 0; i < 3; i++) {
+//            result.set(++index, val.get(i));
+//        }
+        result.set(++index, END_DAY);
+        result.set(++index, val.get(1));
+        result.set(++index, val.get(2));
         result.set(++index, eval_sale);
         result.set(++index, eval_prediction);
         result.set(++index, eval_prediction * bestRate);
